@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary SEO -->
+  <title>Bybit RSI Reversal Bot — Open-Source Mean-Reversion Algorithmic Trading</title>
+  <meta name="description" content="Open-source algorithmic trading bot for Bybit perpetuals. RSI crossover + KDE probability scoring + multi-timeframe supply and demand zones. Walk-forward backtester with 100,000 combo search. Live multi-symbol trader with Rich TUI. Python, MIT licensed.">
+  <meta name="keywords" content="bybit trading bot, algorithmic trading python, mean reversion crypto, RSI trading strategy, supply demand zones algorithm, crypto trading bot open source, bybit perpetuals bot, walk-forward backtester, KDE RSI strategy, automated crypto trading, BTC ETH SOL trading bot">
+  <meta name="author" content="ProperProperProper">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://properproperproper.github.io/bybit-rsi-reversal-bot/">
+
+  <!-- Open Graph (Facebook, LinkedIn) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://properproperproper.github.io/bybit-rsi-reversal-bot/">
+  <meta property="og:title" content="Bybit RSI Reversal Bot — Open-Source Mean-Reversion Algorithmic Trading">
+  <meta property="og:description" content="RSI crossover + KDE probability scoring + MTF supply & demand zones. Walk-forward backtester. Live 5-symbol trader. MIT licensed Python.">
+  <meta property="og:site_name" content="Bybit RSI Reversal Bot">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Bybit RSI Reversal Bot — Open-Source Algo Trading">
+  <meta name="twitter:description" content="Mean-reversion trading bot for Bybit perpetuals. RSI + KDE + Supply/Demand zones. Walk-forward validated. Open source, MIT licensed.">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Bybit RSI Reversal Bot",
+    "description": "Open-source mean-reversion algorithmic trading bot for Bybit perpetuals combining RSI crossover, KDE probability scoring, and multi-timeframe supply and demand zones with walk-forward backtesting.",
+    "url": "https://properproperproper.github.io/bybit-rsi-reversal-bot/",
+    "downloadUrl": "https://github.com/ProperProperProper/bybit-rsi-reversal-bot",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Windows",
+    "programmingLanguage": "Python",
+    "license": "https://opensource.org/licenses/MIT",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": {
+      "@type": "Person",
+      "name": "ProperProperProper",
+      "url": "https://github.com/ProperProperProper"
+    }
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #0d1117; color: #e6edf3; line-height: 1.7;
+    }
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(160deg, #161b22 0%, #0d1117 60%);
+      border-bottom: 1px solid #21262d;
+      padding: 4rem 1.5rem 3rem;
+      text-align: center;
+    }
+    header h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700; color: #f0f6fc; letter-spacing: -0.5px;
+    }
+    header p.tagline {
+      margin: 0.9rem auto 0; font-size: 1.1rem; color: #8b949e;
+      max-width: 620px;
+    }
+    .badges {
+      margin-top: 1.4rem; display: flex; gap: 0.5rem;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-block; padding: 0.3rem 0.85rem;
+      border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+      border: 1px solid #30363d; color: #8b949e; background: #21262d;
+    }
+    .badge.green  { border-color: #238636; color: #3fb950; }
+    .badge.blue   { border-color: #1f6feb; color: #58a6ff; }
+    .badge.yellow { border-color: #9e6a03; color: #d29922; }
+    .badge.purple { border-color: #6e40c9; color: #a371f7; }
+    .nav-links {
+      margin-top: 1.6rem; display: flex; gap: 1rem;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .nav-links a { font-size: 0.875rem; color: #8b949e; }
+    .nav-links a:hover { color: #f0f6fc; }
+
+    /* ── TUI block ── */
+    .tui-wrap {
+      max-width: 860px; margin: 2.5rem auto 0;
+      padding: 0 1.5rem;
+    }
+    .tui-block {
+      background: #010409; border: 1px solid #21262d;
+      border-radius: 10px; padding: 1.25rem 1.5rem;
+      font-family: "Cascadia Code", "Fira Code", "Courier New", monospace;
+      font-size: 0.78rem; color: #3fb950;
+      white-space: pre; overflow-x: auto; line-height: 1.55;
+    }
+
+    /* ── Main ── */
+    main { max-width: 860px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+    section { margin-bottom: 3.5rem; }
+    h2 {
+      font-size: 1.3rem; font-weight: 700; color: #f0f6fc;
+      border-bottom: 1px solid #21262d; padding-bottom: 0.6rem;
+      margin-bottom: 1.4rem;
+    }
+
+    /* ── Layers ── */
+    .layers {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .layer {
+      background: #161b22; border: 1px solid #30363d;
+      border-radius: 10px; padding: 1.25rem;
+      transition: border-color 0.2s;
+    }
+    .layer:hover { border-color: #58a6ff; }
+    .layer .num { font-size: 1.5rem; font-weight: 800; color: #58a6ff; }
+    .layer h3 { font-size: 0.95rem; color: #f0f6fc; margin: 0.35rem 0 0.5rem; }
+    .layer p { font-size: 0.845rem; color: #8b949e; }
+
+    /* ── Features grid ── */
+    .feat-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem;
+    }
+    @media (max-width: 520px) { .feat-grid { grid-template-columns: 1fr; } }
+    .feat {
+      display: flex; gap: 0.6rem; align-items: flex-start;
+      background: #161b22; border: 1px solid #21262d;
+      border-radius: 8px; padding: 0.75rem 1rem;
+      font-size: 0.875rem; color: #c9d1d9;
+    }
+    .feat-icon { color: #3fb950; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Code/diagram ── */
+    .diagram {
+      background: #161b22; border: 1px solid #30363d;
+      border-radius: 8px; padding: 1.25rem 1.5rem;
+      font-family: monospace; font-size: 0.83rem;
+      color: #8b949e; white-space: pre; overflow-x: auto;
+    }
+    .diagram .hl { color: #58a6ff; font-weight: 600; }
+    .diagram .ok { color: #3fb950; }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th {
+      text-align: left; padding: 0.55rem 0.85rem;
+      color: #8b949e; border-bottom: 2px solid #21262d;
+      font-weight: 600; font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td { padding: 0.55rem 0.85rem; border-bottom: 1px solid #161b22; color: #c9d1d9; }
+    td:first-child { font-family: monospace; font-size: 0.82rem; color: #79c0ff; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #161b22; }
+    .tbl-wrap {
+      background: #161b22; border: 1px solid #30363d;
+      border-radius: 10px; overflow: hidden;
+    }
+
+    /* ── Flow ── */
+    .flow {
+      display: flex; flex-direction: column; gap: 0;
+      max-width: 480px;
+    }
+    .flow-step {
+      background: #161b22; border: 1px solid #30363d;
+      border-radius: 8px; padding: 0.75rem 1.1rem;
+      font-size: 0.875rem; color: #c9d1d9;
+      display: flex; gap: 0.75rem; align-items: center;
+    }
+    .flow-step .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #58a6ff; flex-shrink: 0;
+    }
+    .flow-arrow {
+      text-align: left; padding-left: 1.35rem;
+      font-size: 0.8rem; color: #30363d; line-height: 1.2;
+    }
+
+    /* ── CTA ── */
+    .cta {
+      background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+      border: 1px solid #30363d; border-radius: 14px;
+      padding: 2.5rem 2rem; text-align: center;
+    }
+    .cta h2 { border: none; font-size: 1.5rem; }
+    .cta p { color: #8b949e; font-size: 0.9rem; margin-top: 0.5rem; }
+    .btn-row { margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block; padding: 0.7rem 1.8rem;
+      border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; text-decoration: none; }
+    .btn-primary { background: #238636; color: #fff; }
+    .btn-secondary { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+
+    /* ── Disclaimer ── */
+    .disclaimer {
+      background: #161b22; border-left: 3px solid #d29922;
+      padding: 0.85rem 1.1rem; border-radius: 0 8px 8px 0;
+      font-size: 0.82rem; color: #8b949e;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center; padding: 2rem 1rem;
+      font-size: 0.78rem; color: #484f58;
+      border-top: 1px solid #21262d;
+    }
+    footer a { color: #484f58; }
+    footer a:hover { color: #8b949e; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Bybit RSI Reversal Bot</h1>
+  <p class="tagline">Open-source mean-reversion algorithmic trading for Bybit perpetuals — three confirmation layers, walk-forward validated, real-time TUI.</p>
+  <div class="badges">
+    <span class="badge green">MIT License</span>
+    <span class="badge blue">Python 3.11+</span>
+    <span class="badge yellow">Bybit MAINNET</span>
+    <span class="badge">15m Perpetuals</span>
+    <span class="badge purple">Mean Reversion</span>
+    <span class="badge">Walk-Forward Validated</span>
+    <span class="badge">BTC · ETH · SOL · BNB · XRP</span>
+  </div>
+  <nav class="nav-links">
+    <a href="https://github.com/ProperProperProper/bybit-rsi-reversal-bot">GitHub</a>
+    <span style="color:#30363d">·</span>
+    <a href="https://github.com/ProperProperProper/bybit-rsi-reversal-bot/wiki">Wiki</a>
+    <span style="color:#30363d">·</span>
+    <a href="https://github.com/ProperProperProper/bybit-rsi-reversal-bot/issues">Issues</a>
+    <span style="color:#30363d">·</span>
+    <a href="https://github.com/ProperProperProper/bybit-rsi-reversal-bot/blob/main/LICENSE">MIT License</a>
+  </nav>
+</header>
+
+<div class="tui-wrap">
+  <div class="tui-block">┌─ BTC LONG ──────┐ ┌─ ETH FLAT ──────┐ ┌─ SOL LONG ──────┐  ┌─ Wallet ────────┐
+│ RSI   38.4      │ │ RSI   61.2      │ │ RSI   29.1      │  │ Avail   124.80  │
+│ KDE   0.74D     │ │ KDE   —         │ │ KDE   0.81D     │  │ Wallet  148.30  │
+│ CI    43.1      │ │ CI    55.3      │ │ CI    41.7      │  │ Peak    151.20  │
+│ IV    15m       │ │ IV    15m       │ │ IV    15m       │  │ DD        1.9%  │
+│ px    62840.0   │ │ px    1870.5    │ │ px    163.40    │  │ Ses PnL%  +2.1% │
+└─────────────────┘ └─────────────────┘ └─────────────────┘  └─────────────────┘
+
+Recent Trades
+Time               Sym   TF    Side   Entry     Exit      PnL     PnL%   Why   Bars
+2026-07-31 17:34   XRP   15m   LONG   1.0628    1.0698   +5.02   +6.1%   tp    8
+2026-07-31 22:03   ETH   15m   SHORT  1870.66   1865.80  +0.67   +0.8%   sl    3</div>
+</div>
+
+<main>
+
+  <section>
+    <h2>Three-Layer Entry Confirmation</h2>
+    <div class="layers">
+      <div class="layer">
+        <div class="num">01</div>
+        <h3>RSI Crossover</h3>
+        <p>RSI crosses up through the oversold threshold for longs, down through overbought for shorts. Period and thresholds are searched per symbol.</p>
+      </div>
+      <div class="layer">
+        <div class="num">02</div>
+        <h3>KDE Score</h3>
+        <p>Kernel density estimate on RSI history. The current reading must be more extreme than a configurable fraction of the prior 100 bars — filters weak signals.</p>
+      </div>
+      <div class="layer">
+        <div class="num">03</div>
+        <h3>S&amp;D Zone</h3>
+        <p>Price must be inside a higher-timeframe demand (long) or supply (short) zone — formed at confirmed HTF swing lows/highs with zero lookahead bias.</p>
+      </div>
+      <div class="layer">
+        <div class="num">+</div>
+        <h3>Choppiness Filter</h3>
+        <p>Choppiness Index below threshold ensures the market is trending. Ranging markets produce false reversals — this gate filters them out.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Entry Flow</h2>
+    <div class="flow">
+      <div class="flow-step"><div class="dot"></div>RSI crosses oversold / overbought</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="dot"></div>KDE score ≥ threshold (statistically extreme)</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="dot"></div>Price inside MTF supply or demand zone</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="dot"></div>Choppiness Index &lt; threshold (trending)</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="dot" style="background:#3fb950"></div>SL distance ≤ 1.5% — market entry + set TP (70% swing) / SL (zone) on exchange</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Walk-Forward Backtester</h2>
+    <div class="diagram"><span class="hl">|◄────────────────── 48h window ──────────────────►|</span>
+<span class="hl">|◄── IS 24h: search 100,000 param combos ──►|◄── OOS 24h ──►|</span>
+                                                     ▲
+                              <span class="ok">params only written to live trader if profitable here</span>
+
+Selection metric: <span class="hl">Sharpe ratio</span> (raw return% was found to overfit)
+Cycle: every 30 minutes — always trading the freshest validated params</div>
+    <p style="margin-top:1rem; font-size:0.875rem; color:#8b949e;">
+      If all symbols fail validation in a given cycle, the existing params are kept unchanged rather than blanking the config — the bot keeps trading while the BT retries next cycle.
+    </p>
+  </section>
+
+  <section>
+    <h2>Features</h2>
+    <div class="feat-grid">
+      <div class="feat"><span class="feat-icon">✓</span>Walk-forward OOS validation prevents overfitting</div>
+      <div class="feat"><span class="feat-icon">✓</span>100,000 random combos searched per symbol per cycle</div>
+      <div class="feat"><span class="feat-icon">✓</span>5 symbols traded concurrently with per-symbol params</div>
+      <div class="feat"><span class="feat-icon">✓</span>Exchange-managed TP/SL — survive restarts and disconnects</div>
+      <div class="feat"><span class="feat-icon">✓</span>Swing TP at 70% — full close at 70% of confirmed swing distance</div>
+      <div class="feat"><span class="feat-icon">✓</span>Isolated margin — one symbol can't wipe the account</div>
+      <div class="feat"><span class="feat-icon">✓</span>Stale DB auto-cleanup on every start and reconnect</div>
+      <div class="feat"><span class="feat-icon">✓</span>WebSocket health guard with auto-reconnect</div>
+      <div class="feat"><span class="feat-icon">✓</span>Rich TUI: live indicators, session PnL%, sparklines</div>
+      <div class="feat"><span class="feat-icon">✓</span>Rotating log + crash dump on unhandled exceptions</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Searched Parameters</h2>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Parameter</th><th>Range</th><th>Description</th></tr>
+        <tr><td>rsi_p</td><td>5 – 21</td><td>RSI period</td></tr>
+        <tr><td>rsi_os</td><td>20 – 40</td><td>Oversold threshold (long entry crossover)</td></tr>
+        <tr><td>rsi_ob</td><td>60 – 80</td><td>Overbought threshold (short entry crossover)</td></tr>
+        <tr><td>kde_thr</td><td>0.30 – 0.70</td><td>Minimum KDE probability score</td></tr>
+        <tr><td>zone_sl_buf</td><td>0.3 – 2.0</td><td>ATR multiplier for zone SL distance</td></tr>
+        <tr><td>atr_p</td><td>8 – 20</td><td>ATR period</td></tr>
+        <tr><td>chop_len</td><td>8 – 20</td><td>Choppiness Index period</td></tr>
+        <tr><td>chop_thr</td><td>38 – 62</td><td>Max CI (below = trending market)</td></tr>
+        <tr><td>swing_len</td><td>2 – 8</td><td>Bars each side to confirm a swing pivot</td></tr>
+        <tr><td>partial_lvl</td><td>40 – 60</td><td>RSI midline (backtester only)</td></tr>
+      </table>
+    </div>
+    <p style="margin-top:0.75rem; font-size:0.8rem; color:#484f58;">
+      Fixed: KDE_LB=100 · HTF_FACTOR=4 · SD_ZONE_MULT=1.5 · LEVERAGE=11x · TAKER_FEE=0.055% · MAX_SL=1.5%
+    </p>
+  </section>
+
+  <section class="cta">
+    <h2>Open Source · MIT Licensed</h2>
+    <p>Full source code, pre-built Windows executables, and complete wiki documentation.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="https://github.com/ProperProperProper/bybit-rsi-reversal-bot">⭐ Star on GitHub</a>
+      <a class="btn btn-secondary" href="https://github.com/ProperProperProper/bybit-rsi-reversal-bot/wiki">Read the Wiki</a>
+      <a class="btn btn-secondary" href="https://github.com/ProperProperProper/bybit-rsi-reversal-bot/archive/refs/heads/main.zip">Download ZIP</a>
+    </div>
+  </section>
+
+  <div class="disclaimer">
+    <strong>Risk Disclaimer:</strong> This software is provided for educational and research purposes only. Algorithmic trading involves substantial risk of loss. Past backtester performance does not guarantee future results. The authors accept no responsibility for financial losses. Trade at your own risk.
+  </div>
+
+</main>
+
+<footer>
+  <p>Bybit RSI Reversal Bot &mdash; open-source algorithmic trading</p>
+  <p style="margin-top:0.4rem;">
+    <a href="https://github.com/ProperProperProper/bybit-rsi-reversal-bot">GitHub</a> &nbsp;·&nbsp;
+    <a href="https://github.com/ProperProperProper/bybit-rsi-reversal-bot/wiki">Wiki</a> &nbsp;·&nbsp;
+    <a href="https://github.com/ProperProperProper/bybit-rsi-reversal-bot/blob/main/LICENSE">MIT License</a>
+  </p>
+</footer>
+
+</body>
+</html>
